@@ -1,0 +1,66 @@
+--Poduce a list of years and winners of Wimbledon since 1960
+
+SELECT Year,Winner FROM `GrandSlam Tournaments` WHERE Year >="1960" AND Tournament="w" GROUP BY Year
+
+--Find all the players from USA who have won a grand slam and how many grand slams
+--each has won. 
+
+SELECT Winner,COUNT(Winner) FROM `GrandSlam Tournaments` WHERE Winn_ctry="USA" GROUP BY Winner
+
+--Find the average seeding of the winner and the runner up in the French open.
+
+SELECT Tournament,Avg(Winn_Rank),AVG(Runnerup_rank) FROM `GrandSlam Tournaments` WHERE Tournament="F"
+
+--Find the number of players from outside the top 5 who have won the US Open.
+
+SELECT COUNT(ID) FROM `GrandSlam Tournaments` WHERE Winn_Rank>5 AND Tournament="U"
+
+--Find the number of distinct players who have won Wimbledon.
+
+SELECT COUNT(DISTINCT(Winner)) FROM `GrandSlam Tournaments` WHERE Tournament="W"
+
+--Produce a list of the top ten grand slam winners of all time.
+
+Select Winner,count(Winner) FROM `GrandSlam Tournaments` Group BY Winner Order By Count(Winner) DESC LIMIT 10
+
+--Find the number of grand slams won by players from each country since 1950.
+
+SELECT Winn_ctry,COUNT(Winner) FROM `GrandSlam Tournaments` WHERE Year >1950 GROUP BY Winn_ctry
+
+--Find the proportion of times the French Open has been won by a non-seeded player.
+
+SELECT ((SELECT COUNT(Winner) FROM `GrandSlam Tournaments` WHERE Tournament="F" 
+AND Winn_Rank=99)/(SELECT COUNT(ID) FROM `GrandSlam Tournaments`))
+
+--Using an appropriate string function find the proportion of finals where at least one
+set went to a tie break
+
+SELECT((SELECT COUNT(Winner) FROM `GrandSlam Tournaments` WHERE Score LIKE "%(%")/ 
+(SELECT COUNT(ID) FROM `GrandSlam Tournaments` ))
+
+--Using a subquery find the list of tournaments, years and winners where the ranking of
+the winner was lower than the average ranking of the winner across all tournaments.
+
+SELECT Tournament,Year,Winner,Winn_Rank FROM `GrandSlam Tournaments` WHERE Winn_Rank< 
+(SELECT AVG(Winn_Rank)FROM `GrandSlam Tournaments`)
+
+
+--Find the most common combination of winner and runner up in a grand slam.
+
+CREATE TEMPORARY TABLE WinnerandRunnerupTable SELECT Concat(Winner,",",RunnerUp) 
+AS WinnerandRunnerup FROM `GrandSlam Tournaments`;
+
+--A user wishes to explore the French Open winners between two specified years. By
+--using two variables to represent the inputted years, write a query to return the year
+--and the winner for the French Open between the two years.
+
+SET @StartYear=1980;
+SET @EndYear=1990;
+SELECT Winner,Year FROM `GrandSlam Tournaments`WHERE Tournament="F" AND Year>= @StartYear AND Year <=@EndYear
+
+--Create a temporary table to store all the results since 1980. Using this table find the
+--average rank of the winner of each tournament since 1980.
+
+Create temporary Table since1980 AS SELECT winner, Winn_Rank, Year, Tournament FROM `GrandSlam Tournaments` where Year >1980;
+
+SELECT Tournament, avg(Winn_Rank) from since1980 GROUP BY Tournament;
